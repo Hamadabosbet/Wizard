@@ -107,6 +107,8 @@ class Wizard:
                 self.create_phase(1)
                 if_done = self.prev_or_next(1)
                 if if_done == 'done':
+                    if display.get_rest()==True:
+                        self.details = {}
                     display.display_summary(self.details)
                     self.phases = []
                     self.wizards.append(self.details)

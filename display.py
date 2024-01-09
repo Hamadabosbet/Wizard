@@ -38,4 +38,5 @@ def print_items(num_phase,details, start, end):
     print(Style.RESET_ALL)
 
 def get_rest():
+
     return rest
