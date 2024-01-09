@@ -10,11 +10,11 @@ def display_summary(details):
     show_phase(3, details)
     show_phase(4, details)
 
-    rest_button=input(f"{Fore.YELLOW} \nenter 1 if you want to rest:")
+    rest_button=input(f"{Fore.YELLOW} \nenter 1 if you want to rest   or enter to back to Menu ")
     if rest_button=="1":
-        rest_data(details)
-    else:
-        print("Invalid number")
+        rest=True
+    elif rest_button == 2:
+        pass
 
 
 def show_phase(num_phase,details):
@@ -39,9 +39,3 @@ def print_items(num_phase,details, start, end):
 
 def get_rest():
     return rest
-
-def rest_data(details):
-    global rest
-    for k,v in details.items():
-        details[k]=None
-    rest=True
