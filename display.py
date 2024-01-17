@@ -22,7 +22,7 @@ def show_phase(num_phase,details):
         1: lambda: print_items(1,details, 0, 3),
         2: lambda: print_items(2,details, 3, 6),
         3: lambda: print_items(3,details, 6, 8),
-        4: lambda: print_items(4,details, 8, 11)
+        4: lambda: print_items(4,details, 8, 12)
     }
     phase_functions.get(num_phase, lambda: print("Invalid phase number"))()
 
