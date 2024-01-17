@@ -1,4 +1,6 @@
 from datetime import datetime
+from operator import itemgetter
+
 import mysql.connector
 from mysql.connector import errorcode
 from tabulate import tabulate
@@ -159,6 +161,17 @@ def show_wizards(wizards: List[Dict[str, Union[str, bool]]]) -> None:
     wizards_data = [list(wizard.values()) for wizard in wizards]
 
     print(tabulate(wizards_data, headers=headers))
+    while True:
+        sort_choice = input("\n\n\nSort by column: (1) Name (2) Email (3) Birth Date (4) City (5) Street "
+                            "(6) Number (7) Social Media (8) Hobbies (9) Happy (10) Skydiving (11) One Dollar (0) Cancel: ")
+        if sort_choice == "0":
+            break
+        elif sort_choice.isdigit() and 1 <= int(sort_choice) <= len(headers):
+            column_index = int(sort_choice) - 1
+            sorted_wizards = sorted(wizards, key=itemgetter(headers[column_index]))
+            print(tabulate([list(wizard.values()) for wizard in sorted_wizards], headers=headers))
+        else:
+            print("Invalid choice. Please enter a number between 1 and 11 or '0' to cancel.")
 
 def show_statistics() -> None:
     finished_wizards = len(load_wizards_from_db(is_finished=True))

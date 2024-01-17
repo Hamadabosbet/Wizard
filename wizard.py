@@ -24,28 +24,6 @@ class Wizard:
         self.phases: List[Phase] = []
         self.wizards: List[Dict[str, Union[str, None]]] = []
 
-    def show_wizards_history(self) -> None:
-        if not self.wizards:
-            print("No wizards completed yet.")
-            return
-
-        headers = list(self.wizards[0].keys())
-        wizards_data = [list(wizard.values()) for wizard in self.wizards]
-
-        print(tabulate(wizards_data, headers=headers))
-
-        while True:
-            sort_choice = input("\n\n\nSort by column: (1) Name (2) Email (3) Birth Date (4) City (5) Street "
-                                "(6) Number (7) Social Media (8) Hobbies (9) Happy (10) Skydiving (11) One Dollar (0) Cancel: ")
-            if sort_choice == "0":
-                break
-            elif sort_choice.isdigit() and 1 <= int(sort_choice) <= len(headers):
-                column_index = int(sort_choice) - 1
-                sorted_wizards = sorted(self.wizards, key=itemgetter(headers[column_index]))
-                print(tabulate([list(wizard.values()) for wizard in sorted_wizards], headers=headers))
-            else:
-                print("Invalid choice. Please enter a number between 1 and 11 or '0' to cancel.")
-
     def check_if_update(self, phase: Phase) -> None:
         if_update = input("Do you want to update something? Type 'Y' for Yes or 'N' for No: ")
         if if_update.upper() == 'Y':
@@ -124,7 +102,7 @@ class Wizard:
                 wizards = my_connector.load_wizards_from_db(is_finished=False)
                 if wizards:
                     while True:
-                        chosen_name = input("Enter your full name to continue the wizard: ")
+                        chosen_name = input("Enter  the  name of wizard that  you want to continue registration for him: ")
                         if chosen_name:
                             chosen_wizard = next((wizard for wizard in wizards if wizard["Name"] == chosen_name),
                                                  None)
