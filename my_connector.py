@@ -2,8 +2,9 @@ from datetime import datetime
 import mysql.connector
 from mysql.connector import errorcode
 from tabulate import tabulate
+from typing import List, Dict, Optional, Union
 
-def connect_to_database():
+def connect_to_database() -> mysql.connector.MySQLConnection:
     mydb = mysql.connector.connect(
         host='localhost',
         user='root',
@@ -13,8 +14,7 @@ def connect_to_database():
     )
     return mydb
 
-
-def connect_to_db():
+def connect_to_db() -> None:
     try:
         mydb = connect_to_database()
         cursor = mydb.cursor()
@@ -45,19 +45,18 @@ def connect_to_db():
             print(f"Error: {err}")
         exit()
 
-def close_db_connection():
-    mydb=connect_to_database()
+def close_db_connection() -> None:
+    mydb = connect_to_database()
     if mydb.is_connected():
         mydb.cursor().close()
         mydb.close()
 
-def save_wizard_to_db(details):
-    mydb = None
-    cursor = None
+def save_wizard_to_db(details: Dict[str, Union[str, bool]]) -> None:
+    mydb: Optional[mysql.connector.MySQLConnection] = None
+    cursor: Optional[mysql.connector.cursor.MySQLCursor] = None
     try:
         mydb = connect_to_database()
         cursor = mydb.cursor()
-
 
         existing_wizards = load_wizards_from_db(is_finished=False)
         existing_wizard = next((wizard for wizard in existing_wizards if wizard["Name"] == details["Name"]), None)
@@ -79,7 +78,7 @@ def save_wizard_to_db(details):
                 details["Happy"],
                 details["Skydiving"],
                 details["One Dollar"],
-                int(details.get("is_finished", False)),
+                bool(details.get("is_finished", False)),
                 details["Name"]
             ))
         else:
@@ -97,7 +96,7 @@ def save_wizard_to_db(details):
                 details["Happy"],
                 details["Skydiving"],
                 details["One Dollar"],
-                int(details.get("is_finished", False))
+                bool(details.get("is_finished", False))
             ))
 
         mydb.commit()
@@ -109,13 +108,12 @@ def save_wizard_to_db(details):
         if mydb:
             mydb.close()
 
-
-def load_wizards_from_db(is_finished=None):
-    wizards = []
-    mydb = None
-    cursor = None
+def load_wizards_from_db(is_finished: Optional[bool] = None) -> List[Dict[str, Union[str, bool]]]:
+    wizards: List[Dict[str, Union[str, bool]]] = []
+    mydb: Optional[mysql.connector.MySQLConnection] = None
+    cursor: Optional[mysql.connector.cursor.MySQLCursor] = None
     try:
-        mydb =connect_to_database()
+        mydb = connect_to_database()
         cursor = mydb.cursor()
         cursor.execute('SELECT * FROM Wizards WHERE isFinished=%s', (is_finished,))
         rows = cursor.fetchall()
@@ -145,15 +143,15 @@ def load_wizards_from_db(is_finished=None):
 
     return wizards
 
-def show_wizards_history_from_db():
+def show_wizards_history_from_db() -> None:
     wizards = load_wizards_from_db(is_finished=True)
     show_wizards(wizards)
 
-def show_unfinished_wizards_from_db():
+def show_unfinished_wizards_from_db() -> None:
     wizards = load_wizards_from_db(is_finished=False)
     show_wizards(wizards)
 
-def show_wizards(wizards):
+def show_wizards(wizards: List[Dict[str, Union[str, bool]]]) -> None:
     if not wizards:
         print("No wizards found.")
         return
@@ -162,7 +160,7 @@ def show_wizards(wizards):
 
     print(tabulate(wizards_data, headers=headers))
 
-def show_statistics():
+def show_statistics() -> None:
     finished_wizards = len(load_wizards_from_db(is_finished=True))
     unfinished_wizards = len(load_wizards_from_db(is_finished=False))
     ages = [calculate_age(wizard["Birth Date"]) for wizard in load_wizards_from_db(is_finished=True)]
@@ -183,14 +181,13 @@ def show_statistics():
     for hobby, count in hobbies_counts.items():
         print(f"{hobby}: {count}")
 
-
-def calculate_age(birth_date):
+def calculate_age(birth_date: str) -> int:
     birth_date = datetime.strptime(birth_date, '%d/%m/%y')
     today = datetime.today()
     age = today.year - birth_date.year - ((today.month, today.day) < (birth_date.month, birth_date.day))
     return age
 
-def calculate_hobbies_counts():
+def calculate_hobbies_counts() -> Dict[str, int]:
     all_wizards = load_wizards_from_db(is_finished=True)
     all_hobbies = [wizard["Hobbies"] for wizard in all_wizards]
     hobbies_counts = {hobby: all_hobbies.count(hobby) for hobby in set(all_hobbies)}

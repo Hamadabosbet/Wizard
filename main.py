@@ -1,7 +1,6 @@
-#
 import splash
 from wizard import Wizard
-from phase import Phase
+
 
 def main():
     continu=splash.splashscreen()
@@ -11,5 +10,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
