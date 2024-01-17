@@ -1,6 +1,7 @@
 from operator import itemgetter
 from tabulate import tabulate
 from phase import Phase
+import my_connector
 import display
 
 class Wizard:
@@ -65,7 +66,7 @@ class Wizard:
 
     def prev_or_next(self, num_phase):
         while True:
-            move = input(f"You in Phase {num_phase} ,Type (1) for Next  / (2) for Prev : ")
+            move = input(f"You in Phase {num_phase} ,Type (1) for Next  / (2) for Prev  /(3) for exit: ")
             if move == "1":
                 if num_phase == 1:
                     num_phase += 1
@@ -76,6 +77,7 @@ class Wizard:
 
                 if num_phase == 3:
                     self.create_phase(num_phase + 1)
+                    self.details["is_finished"] = True
                     return 'done'
             elif move == "2":
                 if num_phase == 1:
@@ -96,31 +98,77 @@ class Wizard:
                     print('You in Phase 3')
                     display.show_phase(num_phase - 1, self.details)
                     self.check_if_update(self.phases[num_phase - 2])
+
+            elif move=="3":
+                self.details["is_finished"]=False
+                return  "done"
+
             else:
                 print("Invalid choice. Please enter '1' to continue Next or '2' to Prev.")
 
     def start_wizard(self):
+        my_connector.connect_to_db()
         print("Welcome to the Wizard!")
         while True:
-            choice = input("Menu: 1) Start New 2) Continue: 3) History ")
+            choice = input("Menu: 1) Start New 2) Continue: 3) History 4) Statistics 5) exit")
             if choice == "1":
                 self.create_phase(1)
                 if_done = self.prev_or_next(1)
                 if if_done == 'done':
+                    my_connector.save_wizard_to_db(self.details)
                     display.display_summary(self.details)
                     self.phases = []
                     self.wizards.append(self.details)
                     self.details={}
+
             elif choice == "2":
-                phase_number = int(input("Enter phase number: "))
-                phase_numbers = [phase.num_phase for phase in self.phases]
-                if phase_number in phase_numbers:
-                    self.show_phase(phase_number, self.details)
-                elif phase_number == len(self.phases) + 1:
-                    self.create_phase(phase_number)
-                else:
-                    print("You can't access this phase yet. Please complete previous phases.")
+                    my_connector.show_unfinished_wizards_from_db()
+                    wizards = my_connector.load_wizards_from_db(is_finished=False)
+                    if wizards:
+                        while True:
+                            chosen_name = input("Enter your full name to continue the wizard: ")
+                            if chosen_name:
+                                chosen_wizard = next((wizard for wizard in wizards if wizard["Name"] == chosen_name),
+                                                     None)
+                                if chosen_wizard:
+                                    self.details = chosen_wizard
+                                    phase_number = int(input("Enter phase number: "))
+                                    if phase_number > len(self.phases):
+                                        self.create_phase(phase_number)
+                                        if_done = self.prev_or_next(phase_number)
+                                        if if_done == 'done':
+                                            my_connector.save_wizard_to_db(self.details)
+                                            display.display_summary(self.details)
+                                            self.phases = []
+                                            self.wizards.append(self.details)
+                                            self.details = {}
+                                            break
+                                    else:
+                                        self.show_phase(phase_number, self.details)
+                                else:
+                                    print(f"No wizard found with the name: {chosen_name}. Try again.")
+                            else:
+                                print("Invalid input. Please enter your full name.")
+                    else:
+                        print("No unfinished wizards found.")
+                        return None
+
             elif choice == "3":
-                self.show_wizards_history()
+                my_connector.show_wizards_history_from_db()
+            elif choice == "4":
+                my_connector.show_statistics()
+            elif choice == "5":
+                break
             else:
                 print("Invalid choice!")
+
+            my_connector.close_db_connection()
+
+
+
+
+
+
+
+
+
