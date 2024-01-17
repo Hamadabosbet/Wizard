@@ -32,9 +32,9 @@ def splashscreen():
 
     # Display the columns with panel_2
     console.print(Columns([panel_2]))
+    print(Style.RESET_ALL)
     while True:
         m = input("if you want to start type start:")
         if m == "start":
            return True
-
 
