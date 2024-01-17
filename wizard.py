@@ -3,11 +3,12 @@ from tabulate import tabulate
 from phase import Phase
 import my_connector
 import display
-from typing import List, Dict, Union
+from typing import List, Dict, Union, Any
+
 
 class Wizard:
     def __init__(self) -> None:
-        self.details: Dict[str, Union[str, None]] = {
+        self.details: Dict[str, Any] = {
             "Name": None,
             "Email": None,
             "Birth Date": None,
