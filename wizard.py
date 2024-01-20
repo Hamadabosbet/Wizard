@@ -27,17 +27,23 @@ class Wizard:
         if if_update.upper() == 'Y':
             print("You chose to update something.")
             phase.update(self)
-            self.display.show_phase(phase.num_phase, self.details[0])
+            if isinstance(self.details, list) and len(self.details) > 0:
+                self.display.show_phase(phase.num_phase, self.details[0])
+            else:
+                print("updating successfully")
         elif if_update.upper() == 'N':
             print("You chose not to update anything.")
 
     def create_phase(self, num_phase: int) -> None:
-        print(f"You in Phase {num_phase}")
+        print(f"You are in Phase {num_phase}")
         phase = Phase(num_phase)
         phase.run_phase(self)
-        self.display.show_phase(phase.num_phase, self.details)
-        self.phases.append(phase)
-        self.check_if_update(phase)
+        if self.details:
+            self.display.show_phase(phase.num_phase, self.details)
+            self.phases.append(phase)
+            self.check_if_update(phase)
+        else:
+            print("Details not found.")
 
     def prev_or_next(self, num_phase: int) -> Union[str, None]:
         while True:
