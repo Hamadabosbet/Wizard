@@ -1,13 +1,9 @@
-from operator import itemgetter
-from tabulate import tabulate
 from phase import Phase
-import my_connector
-import display
 from typing import List, Dict, Union, Any
 
 
 class Wizard:
-    def __init__(self) -> None:
+    def __init__(self,connector,display) -> None:
         self.details: Dict[str, Any] = {
             "Name": None,
             "Email": None,
@@ -21,6 +17,8 @@ class Wizard:
             "Skydiving": None,
             "One Dollar": None
         }
+        self.connector = connector
+        self.display = display
         self.phases: List[Phase] = []
         self.wizards: List[Dict[str, Union[str, None]]] = []
 
@@ -29,7 +27,7 @@ class Wizard:
         if if_update.upper() == 'Y':
             print("You chose to update something.")
             phase.update(self)
-            display.show_phase(phase.num_phase, self.details[0])
+            self.display.show_phase(phase.num_phase, self.details[0])
         elif if_update.upper() == 'N':
             print("You chose not to update anything.")
 
@@ -37,7 +35,7 @@ class Wizard:
         print(f"You in Phase {num_phase}")
         phase = Phase(num_phase)
         phase.run_phase(self)
-        display.show_phase(phase.num_phase, self.details)
+        self.display.show_phase(phase.num_phase, self.details)
         self.phases.append(phase)
         self.check_if_update(phase)
 
@@ -68,12 +66,12 @@ class Wizard:
             print('You are in Phase 1, You cannot go back.')
         else:
             num_phase -= 1
-            display.show_phase(num_phase, self.details)
+            self.display.show_phase(num_phase, self.details)
             self.check_if_update(self.phases[num_phase - 1])
         return num_phase
 
     def start_wizard(self) -> None:
-        my_connector.connect_to_db()
+        self.connector.connect_to_db()
         print("Welcome to the Wizard!")
         try:
             while True:
@@ -83,15 +81,15 @@ class Wizard:
                 elif choice == "2":
                     self.continue_wizard()
                 elif choice == "3":
-                    my_connector.show_wizards_history_from_db()
+                    self.connector.show_wizards_history_from_db()
                 elif choice == "4":
-                    my_connector.show_statistics()
+                    self.connector.show_statistics()
                 elif choice == "5":
                     break
                 else:
                     print("Invalid choice!")
         finally:
-              my_connector.close_db_connection()
+              self.connector.close_db_connection()
 
     def start_new_wizard(self):
         self.create_phase(1)
@@ -100,18 +98,22 @@ class Wizard:
             self.save_wizard_and_display_summary()
 
     def continue_wizard(self):
-        my_connector.show_unfinished_wizards_from_db()
-        wizards = my_connector.load_wizards_from_db(is_finished=False)
+        self.connector.show_unfinished_wizards_from_db()
+        wizards = self.connector.load_wizards_from_db(is_finished=False)
         if wizards:
-            chosen_name = input("Enter the name of the wizard you want to continue registration for: ")
-            chosen_wizard = next((wizard for wizard in wizards if wizard["Name"] == chosen_name), None)
-            if chosen_wizard:
-                self.details = chosen_wizard
-                self.process_continue_wizard()
+            while True:
+                chosen_name = input("Enter the name of the wizard you want to continue registration for  or 0 to exit: ")
+                if chosen_name=="0":
+                    break
+                chosen_wizard = next((wizard for wizard in wizards if wizard["Name"] == chosen_name), None)
+                if chosen_wizard:
+                    self.details = chosen_wizard
+                    self.process_continue_wizard()
+                    break
+                else:
+                    print(f"No wizard found with the name: {chosen_name}. Try again.")
             else:
-                print(f"No wizard found with the name: {chosen_name}. Try again.")
-        else:
-            print("No unfinished wizards found.")
+                print("No unfinished wizards found.")
 
     def process_continue_wizard(self):
         phase_number = int(input("Enter phase number: "))
@@ -121,11 +123,11 @@ class Wizard:
             if if_done == 'done':
                 self.save_wizard_and_display_summary()
         else:
-            self.show_phase(phase_number, self.details)
+            self.display.show_phase(phase_number, self.details)
 
     def save_wizard_and_display_summary(self):
-        my_connector.save_wizard_to_db(self.details)
-        display.display_summary(self.details)
+        self.connector.save_wizard_to_db(self.details)
+        self.display.display_summary(self.details)
         self.phases = []
         self.wizards.append(self.details)
         self.details = {}
