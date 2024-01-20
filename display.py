@@ -16,6 +16,7 @@ def display_summary(details: Dict[str, Any]) -> None:
     if rest_button == "1":
         rest = True
     elif rest_button == "2":
+        rest=False
         pass
 
 def show_phase(num_phase: int, details: Dict[str, Any]) -> None:

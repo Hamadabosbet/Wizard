@@ -91,6 +91,7 @@ class Wizard:
                 elif choice == "4":
                     self.connector.show_statistics()
                 elif choice == "5":
+                    print("you are out")
                     break
                 else:
                     print("Invalid choice!")
@@ -108,7 +109,7 @@ class Wizard:
         wizards = self.connector.load_wizards_from_db(is_finished=False)
         if wizards:
             while True:
-                chosen_name = input("Enter the name of the wizard you want to continue registration for  or 0 to exit: ")
+                chosen_name = input("Enter the name of the wizard you want to continue registration   or 0 to exit: ")
                 if chosen_name=="0":
                     break
                 chosen_wizard = next((wizard for wizard in wizards if wizard["Name"] == chosen_name), None)
