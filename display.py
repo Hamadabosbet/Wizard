@@ -12,6 +12,7 @@ def display_summary(details: Dict[str, Any]) -> None:
     show_phase(4, details)
 
     rest_button = input(f"{Fore.YELLOW} \nenter 1 if you want to rest   or enter to back to Menu ")
+    print(Style.RESET_ALL)
     if rest_button == "1":
         rest = True
     elif rest_button == "2":
