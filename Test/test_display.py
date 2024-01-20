@@ -14,6 +14,7 @@ details= {
             "Skydiving": None,
             "One Dollar": None
         }
+
 @pytest.fixture
 def mock_input(monkeypatch):
     user_inputs = []
